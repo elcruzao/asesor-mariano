@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesor de Negocios</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 30px; }
+        
+        /* El estilo de tus botones */
+        .btn-telegram {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #0088cc; /* Color oficial Telegram */
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s;
+            box-sizing: border-box; /* Para que el padding no afecte el ancho */
+        }
+        .btn-telegram:hover {
+            background-color: #0077b5;
+            transform: scale(1.02); /* Efecto de "presionar" */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Asesor de Negocios</h1>
+        <p>Selecciona una opción para comenzar:</p>
+
+        <a href="https://t.me/AsesorNegocios_bot?start=consulta" class="btn-telegram">
+            🚀 Iniciar Consulta
+        </a>
+
+        <a href="https://t.me/AsesorNegocios_bot?start=servicios" class="btn-telegram">
+            📋 Ver Servicios
+        </a>
+
+        <a href="https://t.me/AsesorNegocios_bot?start=soporte" class="btn-telegram">
+            💬 Hablar con Soporte
+        </a>
+    </div>
+
+</body>
+</html>
