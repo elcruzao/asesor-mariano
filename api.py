@@ -6,7 +6,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # --- AQUÍ PEGA TU TOKEN ---
-TOKEN = "TU_TOKEN_AQUI" 
+TOKEN = "TOKEN = "7893181294:AAFV5mZpvEnMGob_Lq_pilhFTIboAZHQAvk" 
 # ---------------------------
 
 # La función que responde a los comandos (Igual que antes)
