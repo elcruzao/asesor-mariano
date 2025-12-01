@@ -1,67 +1,66 @@
-import logging
+from http.server import BaseHTTPRequestHandler
+import asyncio
+import json
+import os
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# Configuración básica para ver errores si algo falla
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+# --- AQUÍ PEGA TU TOKEN ---
+TOKEN = "TU_TOKEN_AQUI" 
+# ---------------------------
 
+# La función que responde a los comandos (Igual que antes)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Aquí capturamos los argumentos (lo que viene después del /start)
-    # args es una lista. Si el link es ...?start=consulta, args[0] será "consulta"
     args = context.args
-    
-    # Usuario que nos habla
     user_first_name = update.effective_user.first_name
 
-    # Si NO hay argumentos (el usuario entró al bot directamente, sin la web)
     if not args:
-        await update.message.reply_text(
-            f"¡Hola {user_first_name}! 👋 Soy el Asesor de Mariano.\n"
-            "Escribe /ayuda para ver qué puedo hacer."
-        )
+        await update.message.reply_text(f"¡Hola {user_first_name}! 👋 Soy el Asesor de Mariano. Usa la web para consultarme.")
         return
 
-    # Si SÍ hay argumentos, miramos cuál es
-    payload = args[0].lower() # Lo convertimos a minúsculas por seguridad
+    payload = args[0].lower()
 
     if payload == "consulta":
-        await update.message.reply_text(
-            f"¡Hola {user_first_name}! 👋 Veo que vienes desde la web para hacer una **Consulta**.\n\n"
-            "Cuéntame, ¿cuál es tu duda hoy?"
-        )
-        
+        await update.message.reply_text(f"¡Hola {user_first_name}! 👋 Vienes por una **Consulta**. ¿En qué puedo ayudarte?")
     elif payload == "servicios":
-        await update.message.reply_text(
-            f"¡Bienvenido {user_first_name}! 👋 Aquí tienes nuestros **Servicios**:\n\n"
-            "1. 💅 Gestión para Manicuras\n"
-            "2. 🚗 Turnos para Talleres\n"
-            "3. 🍞 Pedidos para Panaderías\n\n"
-            "¿Cuál te interesa?"
-        )
-        
+        await update.message.reply_text(f"¡Bienvenido {user_first_name}! 👋 Aquí nuestros **Servicios**:\n1. 💅 Manicura\n2. 🚗 Taller\n3. 🍞 Panadería")
     elif payload == "soporte":
-        await update.message.reply_text(
-            f"🚨 **Soporte Técnico**\n\n"
-            "Dime {user_first_name}, ¿qué problema estás teniendo? Estoy aquí para ayudarte."
-        )
-        
+        await update.message.reply_text(f"🚨 **Soporte Técnico**\n\nDime {user_first_name}, ¿qué problema tienes?")
     else:
-        # Por si ponen un link raro que no conocemos
         await update.message.reply_text("¡Hola! Gracias por contactarnos.")
 
-if __name__ == '__main__':
-    # AQUÍ PEGARÁS TU TOKEN DE BOTFATHER
-    TOKEN = "TU_TOKEN_AQUI"
-    
-    application = ApplicationBuilder().token(TOKEN).build()
-    
-    # Le decimos al bot: "Cuando recibas el comando /start, ejecuta la función 'start'"
-    start_handler = CommandHandler('start', start)
-    application.add_handler(start_handler)
-    
-    # Arrancar el bot
-    print("El bot se está iniciando...")
-    application.run_polling()
+# La Clase que maneja la conexión con Vercel
+class handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        # 1. Recibir el mensaje de Telegram
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        json_data = json.loads(post_data.decode('utf-8'))
+
+        async def main():
+            # 2. Configurar el bot (se crea y se destruye en cada mensaje para ahorrar memoria)
+            app = ApplicationBuilder().token(TOKEN).build()
+            app.add_handler(CommandHandler('start', start))
+            
+            # 3. Procesar la actualización
+            await app.initialize()
+            update = Update.de_json(json_data, app.bot)
+            await app.process_update(update)
+            await app.shutdown()
+
+        # 4. Ejecutar todo
+        try:
+            asyncio.run(main())
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"OK")
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            print(f"Error: {e}")
+
+    def do_GET(self):
+        # Por si entras al link desde el navegador para probar
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"El bot esta activo esperando a Telegram.")
